@@ -14,6 +14,7 @@
 #ifndef included_IBTK_MPI_inc
 #define included_IBTK_MPI_inc
 
+#include "ibtk/IBTKInit.h"
 #include "ibtk/IBTK_MPI.h"
 
 namespace IBTK
@@ -22,6 +23,7 @@ template <typename T>
 inline T
 IBTK_MPI::minReduction(T x, int* rank_of_min, IBTK_MPI::comm communicator)
 {
+    IBTKInit::check_initialized();
     minReduction(&x, 1, rank_of_min, communicator);
     return x;
 } // minReduction
@@ -30,6 +32,7 @@ template <typename T>
 inline void
 IBTK_MPI::minReduction(T* x, const int n, int* rank_of_min, IBTK_MPI::comm communicator)
 {
+    IBTKInit::check_initialized();
     if (n == 0) return;
     if (rank_of_min == nullptr)
     {
@@ -45,6 +48,7 @@ template <typename T>
 inline T
 IBTK_MPI::maxReduction(T x, int* rank_of_max, IBTK_MPI::comm communicator)
 {
+    IBTKInit::check_initialized();
     maxReduction(&x, 1, rank_of_max, communicator);
     return x;
 } // maxReduction
@@ -53,6 +57,7 @@ template <typename T>
 inline void
 IBTK_MPI::maxReduction(T* x, const int n, int* rank_of_max, IBTK_MPI::comm communicator)
 {
+    IBTKInit::check_initialized();
     if (n == 0) return;
     if (rank_of_max == nullptr)
     {
@@ -68,6 +73,7 @@ template <typename T>
 inline T
 IBTK_MPI::sumReduction(T x, IBTK_MPI::comm communicator)
 {
+    IBTKInit::check_initialized();
     sumReduction(&x, 1, communicator);
     return x;
 } // sumReduction
@@ -76,6 +82,7 @@ template <typename T>
 inline void
 IBTK_MPI::sumReduction(T* x, const int n, IBTK_MPI::comm communicator)
 {
+    IBTKInit::check_initialized();
     if (n == 0 || getNodes(communicator) < 2) return;
     MPI_Allreduce(MPI_IN_PLACE, x, n, mpi_type_id(x[0]), MPI_SUM, communicator);
 } // sumReduction
@@ -84,6 +91,7 @@ template <typename T>
 inline T
 IBTK_MPI::bcast(const T x, const int root, IBTK_MPI::comm communicator)
 {
+    IBTKInit::check_initialized();
     int size = 1;
     T temp_copy = x;
     bcast(&temp_copy, size, root, communicator);
@@ -94,6 +102,7 @@ template <typename T>
 inline void
 IBTK_MPI::bcast(T* x, int& length, const int root, IBTK_MPI::comm communicator)
 {
+    IBTKInit::check_initialized();
     if (getNodes(communicator) > 1)
     {
         MPI_Bcast(x, length, mpi_type_id(x[0]), root, communicator);
@@ -109,6 +118,7 @@ IBTK_MPI::send(const T* buf,
                int tag,
                IBTK_MPI::comm communicator)
 {
+    IBTKInit::check_initialized();
     tag = (tag >= 0) ? tag : 0;
     int size = length;
     if (send_length)
@@ -127,6 +137,7 @@ IBTK_MPI::recv(T* buf,
                int tag,
                IBTK_MPI::comm communicator)
 {
+    IBTKInit::check_initialized();
     MPI_Status status;
     tag = (tag >= 0) ? tag : 0;
     if (get_length)
@@ -140,6 +151,7 @@ template <typename T>
 inline void
 IBTK_MPI::allGather(const T* x_in, int size_in, T* x_out, int size_out, IBTK_MPI::comm communicator)
 {
+    IBTKInit::check_initialized();
     std::vector<int> rcounts, disps;
     allGatherSetup(size_in, size_out, rcounts, disps, communicator);
 
@@ -151,6 +163,7 @@ template <typename T>
 inline void
 IBTK_MPI::allGather(T x_in, T* x_out, IBTK_MPI::comm communicator)
 {
+    IBTKInit::check_initialized();
     MPI_Allgather(&x_in, 1, mpi_type_id(x_in), x_out, 1, mpi_type_id(x_in), communicator);
 } // allGather
 

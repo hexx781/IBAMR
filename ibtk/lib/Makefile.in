@@ -187,6 +187,7 @@ am__libIBTK_a_SOURCES_DIST =  \
 	$(top_builddir)/src/utilities/ParallelEdgeMap.cpp \
 	$(top_builddir)/src/utilities/FixedSizedStream.cpp \
 	$(top_builddir)/src/utilities/IBTK_MPI.cpp \
+	$(top_builddir)/src/utilities/IBTKInit.cpp \
 	../contrib/muparser/src/muParserDLL.cpp \
 	../contrib/muparser/src/muParserTokenReader.cpp \
 	../contrib/muparser/src/muParserError.cpp \
@@ -210,6 +211,7 @@ am_libIBTK_a_OBJECTS =  \
 	$(top_builddir)/src/utilities/ParallelEdgeMap.$(OBJEXT) \
 	$(top_builddir)/src/utilities/FixedSizedStream.$(OBJEXT) \
 	$(top_builddir)/src/utilities/IBTK_MPI.$(OBJEXT) \
+	$(top_builddir)/src/utilities/IBTKInit.$(OBJEXT) \
 	$(am__objects_1)
 libIBTK_a_OBJECTS = $(am_libIBTK_a_OBJECTS)
 libIBTK2d_a_AR = $(AR) $(ARFLAGS)
@@ -823,6 +825,7 @@ depcomp = $(SHELL) $(top_srcdir)/config/depcomp
 am__maybe_remake_depfiles = depfiles
 am__depfiles_remade =  \
 	$(top_builddir)/src/utilities/$(DEPDIR)/FixedSizedStream.Po \
+	$(top_builddir)/src/utilities/$(DEPDIR)/IBTKInit.Po \
 	$(top_builddir)/src/utilities/$(DEPDIR)/IBTK_MPI.Po \
 	$(top_builddir)/src/utilities/$(DEPDIR)/ParallelEdgeMap.Po \
 	../contrib/muparser/src/$(DEPDIR)/muParser.Po \
@@ -1445,7 +1448,8 @@ SUFFIXES = .f.m4
 lib_LIBRARIES = libIBTK.a $(am__append_1) $(am__append_2)
 libIBTK_a_SOURCES = $(top_builddir)/src/utilities/ParallelEdgeMap.cpp \
 	$(top_builddir)/src/utilities/FixedSizedStream.cpp \
-	$(top_builddir)/src/utilities/IBTK_MPI.cpp $(am__append_3)
+	$(top_builddir)/src/utilities/IBTK_MPI.cpp \
+	$(top_builddir)/src/utilities/IBTKInit.cpp $(am__append_3)
 pkg_include_HEADERS = ../include/ibtk/IBTK_CHKERRQ.h \
 	../include/ibtk/app_namespaces.h \
 	../include/ibtk/compiler_hints.h ../include/ibtk/ibtk_enums.h \
@@ -1495,7 +1499,7 @@ pkg_include_HEADERS = ../include/ibtk/IBTK_CHKERRQ.h \
 	../include/ibtk/HierarchyGhostCellInterpolation.h \
 	../include/ibtk/HierarchyIntegrator.h \
 	../include/ibtk/HierarchyMathOps.h ../include/ibtk/IBTK_MPI.h \
-	../include/ibtk/IndexUtilities.h \
+	../include/ibtk/IBTKInit.h ../include/ibtk/IndexUtilities.h \
 	../include/ibtk/JacobianOperator.h \
 	../include/ibtk/KrylovLinearSolver.h \
 	../include/ibtk/KrylovLinearSolverManager.h \
@@ -1836,6 +1840,9 @@ $(top_builddir)/src/utilities/FixedSizedStream.$(OBJEXT):  \
 	$(top_builddir)/src/utilities/$(am__dirstamp) \
 	$(top_builddir)/src/utilities/$(DEPDIR)/$(am__dirstamp)
 $(top_builddir)/src/utilities/IBTK_MPI.$(OBJEXT):  \
+	$(top_builddir)/src/utilities/$(am__dirstamp) \
+	$(top_builddir)/src/utilities/$(DEPDIR)/$(am__dirstamp)
+$(top_builddir)/src/utilities/IBTKInit.$(OBJEXT):  \
 	$(top_builddir)/src/utilities/$(am__dirstamp) \
 	$(top_builddir)/src/utilities/$(DEPDIR)/$(am__dirstamp)
 ../contrib/muparser/src/$(am__dirstamp):
@@ -2892,6 +2899,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@$(top_builddir)/src/utilities/$(DEPDIR)/FixedSizedStream.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@$(top_builddir)/src/utilities/$(DEPDIR)/IBTKInit.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@$(top_builddir)/src/utilities/$(DEPDIR)/IBTK_MPI.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@$(top_builddir)/src/utilities/$(DEPDIR)/ParallelEdgeMap.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@../contrib/muparser/src/$(DEPDIR)/muParser.Po@am__quote@ # am--include-marker
@@ -6920,6 +6928,7 @@ clean-am: clean-generic clean-libLIBRARIES clean-libtool clean-local \
 
 distclean: distclean-am
 		-rm -f $(top_builddir)/src/utilities/$(DEPDIR)/FixedSizedStream.Po
+	-rm -f $(top_builddir)/src/utilities/$(DEPDIR)/IBTKInit.Po
 	-rm -f $(top_builddir)/src/utilities/$(DEPDIR)/IBTK_MPI.Po
 	-rm -f $(top_builddir)/src/utilities/$(DEPDIR)/ParallelEdgeMap.Po
 	-rm -f ../contrib/muparser/src/$(DEPDIR)/muParser.Po
@@ -7229,6 +7238,7 @@ installcheck-am:
 
 maintainer-clean: maintainer-clean-am
 		-rm -f $(top_builddir)/src/utilities/$(DEPDIR)/FixedSizedStream.Po
+	-rm -f $(top_builddir)/src/utilities/$(DEPDIR)/IBTKInit.Po
 	-rm -f $(top_builddir)/src/utilities/$(DEPDIR)/IBTK_MPI.Po
 	-rm -f $(top_builddir)/src/utilities/$(DEPDIR)/ParallelEdgeMap.Po
 	-rm -f ../contrib/muparser/src/$(DEPDIR)/muParser.Po

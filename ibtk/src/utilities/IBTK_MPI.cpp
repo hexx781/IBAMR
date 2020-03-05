@@ -13,9 +13,11 @@
 
 /////////////////////////////// INCLUDES /////////////////////////////////////
 
+#include "ibtk/IBTKInit.h"
 #include "ibtk/IBTK_MPI.h"
 #include "ibtk/app_namespaces.h"
 
+#include "tbox/SAMRAI_MPI.h"
 #include "tbox/Utilities.h"
 
 #include <string>
@@ -34,22 +36,25 @@ IBTK_MPI::setCommunicator(IBTK_MPI::comm communicator)
 IBTK_MPI::comm
 IBTK_MPI::getCommunicator()
 {
+    IBTKInit::check_initialized();
     return (s_communicator);
 } // getCommunicator
 
 IBTK_MPI::comm
 IBTK_MPI::getSAMRAIWorld()
 {
+    IBTKInit::check_initialized();
 #if SAMRAI_VERSION_MAJOR == 2
-    return IBTK_MPI::getCommunicator();
+    return SAMRAI_MPI::commWorld;
 #else
-    return IBTK_MPI::getSAMRAIWorld()
+    return SAMRAI_MPI::getSAMRAIWorld()
 #endif
 }
 
 int
 IBTK_MPI::getNodes(IBTK_MPI::comm communicator)
 {
+    IBTKInit::check_initialized();
     int nodes = 1;
     MPI_Comm_size(communicator, &nodes);
     return nodes;
@@ -58,6 +63,7 @@ IBTK_MPI::getNodes(IBTK_MPI::comm communicator)
 int
 IBTK_MPI::getRank(IBTK_MPI::comm communicator)
 {
+    IBTKInit::check_initialized();
     int node = 0;
     MPI_Comm_rank(communicator, &node);
     return node;
@@ -66,12 +72,14 @@ IBTK_MPI::getRank(IBTK_MPI::comm communicator)
 void
 IBTK_MPI::barrier(IBTK_MPI::comm communicator)
 {
+    IBTKInit::check_initialized();
     (void)MPI_Barrier(communicator);
 } // barrier
 
 void
 IBTK_MPI::allToOneSumReduction(int* x, const int n, const int root, IBTK_MPI::comm communicator)
 {
+    IBTKInit::check_initialized();
     if (getNodes(communicator) > 1)
     {
         MPI_Reduce(MPI_IN_PLACE, x, n, MPI_INT, MPI_SUM, root, communicator);
@@ -84,12 +92,14 @@ IBTK_MPI::sendBytes(const void* buf,
                     const int receiving_proc_number,
                     IBTK_MPI::comm communicator)
 {
+    IBTKInit::check_initialized();
     MPI_Send((void*)buf, number_bytes, MPI_BYTE, receiving_proc_number, 0, communicator);
 } // sendBytes
 
 int
 IBTK_MPI::recvBytes(void* buf, int number_bytes, IBTK_MPI::comm communicator)
 {
+    IBTKInit::check_initialized();
     int rval = 0;
     MPI_Status status;
     MPI_Recv(buf, number_bytes, MPI_BYTE, MPI_ANY_SOURCE, MPI_ANY_TAG, communicator, &status);
