@@ -1402,6 +1402,44 @@ void
 LEInteractor::interpolate(Pointer<LData> Q_data,
                           const Pointer<LData> X_data,
                           const Pointer<LIndexSetData<T> > idx_data,
+                          const Pointer<CellData<NDIM, double> > q_data,
+                          const Pointer<CellData<NDIM, double> > mask_data,
+                          const Pointer<Patch<NDIM> > patch,
+                          const Box<NDIM>& interp_box,
+                          const IntVector<NDIM>& /*periodic_shift*/,
+                          const std::string& interp_fcn)
+{
+#if !defined(NDEBUG)
+    TBOX_ASSERT(Q_data);
+    TBOX_ASSERT(q_data);
+    TBOX_ASSERT(mask_data);
+    TBOX_ASSERT(X_data);
+    TBOX_ASSERT(idx_data);
+    TBOX_ASSERT(patch);
+    TBOX_ASSERT(Q_data->getDepth() == static_cast<unsigned int>(q_data->getDepth()));
+    TBOX_ASSERT(X_data->getDepth() == NDIM);
+#endif
+    interpolate(Q_data->getGhostedLocalFormVecArray()->data(),
+                static_cast<int>(Q_data->getGhostedLocalFormVecArray()->num_elements()),
+                Q_data->getDepth(),
+                X_data->getGhostedLocalFormVecArray()->data(),
+                static_cast<int>(X_data->getGhostedLocalFormVecArray()->num_elements()),
+                X_data->getDepth(),
+                q_data,
+                mask_data,
+                patch,
+                interp_box,
+                interp_fcn);
+    Q_data->restoreArrays();
+    X_data->restoreArrays();
+    return;
+}
+
+template <class T>
+void
+LEInteractor::interpolate(Pointer<LData> Q_data,
+                          const Pointer<LData> X_data,
+                          const Pointer<LIndexSetData<T> > idx_data,
                           const Pointer<NodeData<NDIM, double> > q_data,
                           const Pointer<Patch<NDIM> > patch,
                           const Box<NDIM>& interp_box,
@@ -1467,6 +1505,49 @@ LEInteractor::interpolate(Pointer<LData> Q_data,
                 patch,
                 interp_box,
                 periodic_shift,
+                interp_fcn);
+    Q_data->restoreArrays();
+    X_data->restoreArrays();
+    return;
+}
+
+template <class T>
+void
+LEInteractor::interpolate(Pointer<LData> Q_data,
+                          const Pointer<LData> X_data,
+                          const Pointer<LIndexSetData<T> > idx_data,
+                          const Pointer<SideData<NDIM, double> > q_data,
+                          const Pointer<SideData<NDIM, double> > mask_data,
+                          const Pointer<Patch<NDIM> > patch,
+                          const Box<NDIM>& interp_box,
+                          const IntVector<NDIM>& /*periodic_shift*/,
+                          const std::string& interp_fcn)
+{
+    if (Q_data->getDepth() != NDIM || q_data->getDepth() != 1)
+    {
+        TBOX_ERROR("LEInteractor::interpolate():\n"
+                   << "  side-centered interpolation requires vector-valued data.\n");
+    }
+#if !defined(NDEBUG)
+    TBOX_ASSERT(Q_data);
+    TBOX_ASSERT(q_data);
+    TBOX_ASSERT(X_data);
+    TBOX_ASSERT(idx_data);
+    TBOX_ASSERT(patch);
+    TBOX_ASSERT(Q_data->getDepth() == NDIM);
+    TBOX_ASSERT(X_data->getDepth() == NDIM);
+    TBOX_ASSERT(q_data->getDepth() == 1);
+#endif
+    interpolate(Q_data->getGhostedLocalFormVecArray()->data(),
+                static_cast<int>(Q_data->getGhostedLocalFormVecArray()->num_elements()),
+                Q_data->getDepth(),
+                X_data->getGhostedLocalFormVecArray()->data(),
+                static_cast<int>(X_data->getGhostedLocalFormVecArray()->num_elements()),
+                X_data->getDepth(),
+                q_data,
+                mask_data,
+                patch,
+                interp_box,
                 interp_fcn);
     Q_data->restoreArrays();
     X_data->restoreArrays();
@@ -1857,8 +1938,8 @@ LEInteractor::interpolate(std::vector<double>& Q_data,
                           const int Q_depth,
                           const std::vector<double>& X_data,
                           const int X_depth,
-                          const Pointer<CellData<NDIM, double> > mask_data,
                           const Pointer<CellData<NDIM, double> > q_data,
+                          const Pointer<CellData<NDIM, double> > mask_data,
                           const Pointer<Patch<NDIM> > patch,
                           const Box<NDIM>& interp_box,
                           const std::string& interp_fcn)
@@ -1870,8 +1951,8 @@ LEInteractor::interpolate(std::vector<double>& Q_data,
                 &X_data[0],
                 static_cast<int>(X_data.size()),
                 X_depth,
-                mask_data,
                 q_data,
+                mask_data,
                 patch,
                 interp_box,
                 interp_fcn);
@@ -1928,8 +2009,8 @@ LEInteractor::interpolate(std::vector<double>& Q_data,
                           const int Q_depth,
                           const std::vector<double>& X_data,
                           const int X_depth,
-                          const Pointer<SideData<NDIM, double> > mask_data,
                           const Pointer<SideData<NDIM, double> > q_data,
+                          const Pointer<SideData<NDIM, double> > mask_data,
                           const Pointer<Patch<NDIM> > patch,
                           const Box<NDIM>& interp_box,
                           const std::string& interp_fcn)
@@ -1941,8 +2022,8 @@ LEInteractor::interpolate(std::vector<double>& Q_data,
                 &X_data[0],
                 static_cast<int>(X_data.size()),
                 X_depth,
-                mask_data,
                 q_data,
+                mask_data,
                 patch,
                 interp_box,
                 interp_fcn);
@@ -2042,8 +2123,8 @@ LEInteractor::interpolate(double* const Q_data,
                           const double* const X_data,
                           const int X_size,
                           const int X_depth,
-                          const Pointer<CellData<NDIM, double> > mask_data,
                           const Pointer<CellData<NDIM, double> > q_data,
+                          const Pointer<CellData<NDIM, double> > mask_data,
                           const Pointer<Patch<NDIM> > patch,
                           const Box<NDIM>& interp_box,
                           const std::string& interp_fcn)
@@ -2082,12 +2163,12 @@ LEInteractor::interpolate(double* const Q_data,
                    << "  minimum ghost cell width = " << min_ghosts << "\n"
                    << "  ghost cell width         = " << q_gcw_min << "\n");
     }
-    if (mask_gcw_min < stencil_size)
+    if (mask_gcw_min < min_ghosts)
     {
         TBOX_ERROR("LEInteractor::interpolate(): insufficient ghost cells for Eulerian mask data:\n"
                    << "  kernel function          = " << interp_fcn << "\n"
                    << "  kernel stencil size      = " << stencil_size << "\n"
-                   << "  minimum ghost cell width = " << stencil_size << "\n"
+                   << "  minimum ghost cell width = " << min_ghosts << "\n"
                    << "  ghost cell width         = " << mask_gcw_min << "\n");
     }
     const IntVector<NDIM> ig_lower = ilower - q_gcw;
@@ -2315,8 +2396,8 @@ LEInteractor::interpolate(double* const Q_data,
                           const double* const X_data,
                           const int X_size,
                           const int X_depth,
-                          const Pointer<SideData<NDIM, double> > mask_data,
                           const Pointer<SideData<NDIM, double> > q_data,
+                          const Pointer<SideData<NDIM, double> > mask_data,
                           const Pointer<Patch<NDIM> > patch,
                           const Box<NDIM>& interp_box,
                           const std::string& interp_fcn)
@@ -2356,12 +2437,12 @@ LEInteractor::interpolate(double* const Q_data,
                    << "  minimum ghost cell width = " << min_ghosts << "\n"
                    << "  ghost cell width         = " << q_gcw_min << "\n");
     }
-    if (mask_gcw_min < stencil_size)
+    if (mask_gcw_min < min_ghosts)
     {
         TBOX_ERROR("LEInteractor::interpolate(): insufficient ghost cells for Eulerian mask data:\n"
                    << "  kernel function          = " << interp_fcn << "\n"
                    << "  kernel stencil size      = " << stencil_size << "\n"
-                   << "  minimum ghost cell width = " << stencil_size << "\n"
+                   << "  minimum ghost cell width = " << min_ghosts << "\n"
                    << "  ghost cell width         = " << mask_gcw_min << "\n");
     }
 
@@ -2432,7 +2513,7 @@ LEInteractor::interpolate(double* const Q_data,
     }
 
     return;
-}
+} // interpolate
 
 void
 LEInteractor::interpolate(double* const Q_data,
@@ -2563,6 +2644,44 @@ LEInteractor::spread(Pointer<CellData<NDIM, double> > q_data,
 
 template <class T>
 void
+LEInteractor::spread(Pointer<CellData<NDIM, double> > q_data,
+                     Pointer<CellData<NDIM, double> > mask_data,
+                     const Pointer<LData> Q_data,
+                     const Pointer<LData> X_data,
+                     const Pointer<LIndexSetData<T> > idx_data,
+                     const Pointer<Patch<NDIM> > patch,
+                     const Box<NDIM>& spread_box,
+                     const IntVector<NDIM>& /*periodic_shift*/,
+                     const std::string& spread_fcn)
+{
+#if !defined(NDEBUG)
+    TBOX_ASSERT(Q_data);
+    TBOX_ASSERT(q_data);
+    TBOX_ASSERT(mask_data);
+    TBOX_ASSERT(X_data);
+    TBOX_ASSERT(idx_data);
+    TBOX_ASSERT(patch);
+    TBOX_ASSERT(Q_data->getDepth() == static_cast<unsigned int>(q_data->getDepth()));
+    TBOX_ASSERT(X_data->getDepth() == NDIM);
+#endif
+    spread(q_data,
+           mask_data,
+           Q_data->getGhostedLocalFormVecArray()->data(),
+           static_cast<int>(Q_data->getGhostedLocalFormVecArray()->num_elements()),
+           Q_data->getDepth(),
+           X_data->getGhostedLocalFormVecArray()->data(),
+           static_cast<int>(X_data->getGhostedLocalFormVecArray()->num_elements()),
+           X_data->getDepth(),
+           patch,
+           spread_box,
+           spread_fcn);
+    Q_data->restoreArrays();
+    X_data->restoreArrays();
+    return;
+}
+
+template <class T>
+void
 LEInteractor::spread(Pointer<NodeData<NDIM, double> > q_data,
                      const Pointer<LData> Q_data,
                      const Pointer<LData> X_data,
@@ -2631,6 +2750,50 @@ LEInteractor::spread(Pointer<SideData<NDIM, double> > q_data,
            patch,
            spread_box,
            periodic_shift,
+           spread_fcn);
+    Q_data->restoreArrays();
+    X_data->restoreArrays();
+    return;
+}
+
+template <class T>
+void
+LEInteractor::spread(Pointer<SideData<NDIM, double> > q_data,
+                     Pointer<SideData<NDIM, double> > mask_data,
+                     const Pointer<LData> Q_data,
+                     const Pointer<LData> X_data,
+                     const Pointer<LIndexSetData<T> > idx_data,
+                     const Pointer<Patch<NDIM> > patch,
+                     const Box<NDIM>& spread_box,
+                     const IntVector<NDIM>& /*periodic_shift*/,
+                     const std::string& spread_fcn)
+{
+    if (Q_data->getDepth() != NDIM || q_data->getDepth() != 1)
+    {
+        TBOX_ERROR("LEInteractor::spread():\n"
+                   << "  side-centered spreading requires vector-valued data.\n");
+    }
+#if !defined(NDEBUG)
+    TBOX_ASSERT(Q_data);
+    TBOX_ASSERT(q_data);
+    TBOX_ASSERT(mask_data);
+    TBOX_ASSERT(X_data);
+    TBOX_ASSERT(idx_data);
+    TBOX_ASSERT(patch);
+    TBOX_ASSERT(q_data->getDepth() == 1);
+    TBOX_ASSERT(Q_data->getDepth() == NDIM);
+    TBOX_ASSERT(X_data->getDepth() == NDIM);
+#endif
+    spread(q_data,
+           mask_data,
+           Q_data->getGhostedLocalFormVecArray()->data(),
+           static_cast<int>(Q_data->getGhostedLocalFormVecArray()->num_elements()),
+           Q_data->getDepth(),
+           X_data->getGhostedLocalFormVecArray()->data(),
+           static_cast<int>(X_data->getGhostedLocalFormVecArray()->num_elements()),
+           X_data->getDepth(),
+           patch,
+           spread_box,
            spread_fcn);
     Q_data->restoreArrays();
     X_data->restoreArrays();
@@ -3017,8 +3180,8 @@ LEInteractor::spread(Pointer<CellData<NDIM, double> > q_data,
 }
 
 void
-LEInteractor::spread(Pointer<CellData<NDIM, double> > mask_data,
-                     Pointer<CellData<NDIM, double> > q_data,
+LEInteractor::spread(Pointer<CellData<NDIM, double> > q_data,
+                     Pointer<CellData<NDIM, double> > mask_data,
                      const std::vector<double>& Q_data,
                      const int Q_depth,
                      const std::vector<double>& X_data,
@@ -3028,8 +3191,8 @@ LEInteractor::spread(Pointer<CellData<NDIM, double> > mask_data,
                      const std::string& spread_fcn)
 {
     if (Q_data.empty()) return;
-    spread(mask_data,
-           q_data,
+    spread(q_data,
+           mask_data,
            &Q_data[0],
            static_cast<int>(Q_data.size()),
            Q_depth,
@@ -3088,8 +3251,8 @@ LEInteractor::spread(Pointer<SideData<NDIM, double> > q_data,
 }
 
 void
-LEInteractor::spread(Pointer<SideData<NDIM, double> > mask_data,
-                     Pointer<SideData<NDIM, double> > q_data,
+LEInteractor::spread(Pointer<SideData<NDIM, double> > q_data,
+                     Pointer<SideData<NDIM, double> > mask_data,
                      const std::vector<double>& Q_data,
                      const int Q_depth,
                      const std::vector<double>& X_data,
@@ -3099,8 +3262,8 @@ LEInteractor::spread(Pointer<SideData<NDIM, double> > mask_data,
                      const std::string& spread_fcn)
 {
     if (Q_data.empty()) return;
-    spread(mask_data,
-           q_data,
+    spread(q_data,
+           mask_data,
            &Q_data[0],
            static_cast<int>(Q_data.size()),
            Q_depth,
@@ -3200,8 +3363,8 @@ LEInteractor::spread(Pointer<CellData<NDIM, double> > q_data,
 }
 
 void
-LEInteractor::spread(Pointer<CellData<NDIM, double> > mask_data,
-                     Pointer<CellData<NDIM, double> > q_data,
+LEInteractor::spread(Pointer<CellData<NDIM, double> > q_data,
+                     Pointer<CellData<NDIM, double> > mask_data,
                      const double* const Q_data,
                      const int Q_size,
                      const int Q_depth,
@@ -3214,6 +3377,7 @@ LEInteractor::spread(Pointer<CellData<NDIM, double> > mask_data,
 {
 #if !defined(NDEBUG)
     TBOX_ASSERT(q_data);
+    TBOX_ASSERT(mask_data);
     TBOX_ASSERT(patch);
     TBOX_ASSERT(Q_depth == q_data->getDepth());
     TBOX_ASSERT(X_depth == NDIM);
@@ -3469,8 +3633,8 @@ LEInteractor::spread(Pointer<SideData<NDIM, double> > q_data,
 }
 
 void
-LEInteractor::spread(Pointer<SideData<NDIM, double> > mask_data,
-                     Pointer<SideData<NDIM, double> > q_data,
+LEInteractor::spread(Pointer<SideData<NDIM, double> > q_data,
+                     Pointer<SideData<NDIM, double> > mask_data,
                      const double* const Q_data,
                      const int Q_size,
                      const int Q_depth,
@@ -5012,6 +5176,17 @@ template void IBTK::LEInteractor::interpolate(SAMRAI::tbox::Pointer<LData> Q_dat
                                               const SAMRAI::hier::IntVector<NDIM>& periodic_shift,
                                               const std::string& interp_fcn);
 
+template void
+IBTK::LEInteractor::interpolate(SAMRAI::tbox::Pointer<LData> Q_data,
+                                const SAMRAI::tbox::Pointer<LData> X_data,
+                                const SAMRAI::tbox::Pointer<LIndexSetData<LNode> > idx_data,
+                                const SAMRAI::tbox::Pointer<SAMRAI::pdat::CellData<NDIM, double> > q_data,
+                                const SAMRAI::tbox::Pointer<SAMRAI::pdat::CellData<NDIM, double> > mask_data,
+                                const SAMRAI::tbox::Pointer<SAMRAI::hier::Patch<NDIM> > patch,
+                                const SAMRAI::hier::Box<NDIM>& interp_box,
+                                const SAMRAI::hier::IntVector<NDIM>& periodic_shift,
+                                const std::string& interp_fcn);
+
 template void IBTK::LEInteractor::interpolate(SAMRAI::tbox::Pointer<LData> Q_data,
                                               const SAMRAI::tbox::Pointer<LData> X_data,
                                               const SAMRAI::tbox::Pointer<LIndexSetData<LNode> > idx_data,
@@ -5029,6 +5204,17 @@ template void IBTK::LEInteractor::interpolate(SAMRAI::tbox::Pointer<LData> Q_dat
                                               const SAMRAI::hier::Box<NDIM>& interp_box,
                                               const SAMRAI::hier::IntVector<NDIM>& periodic_shift,
                                               const std::string& interp_fcn);
+
+template void
+IBTK::LEInteractor::interpolate(SAMRAI::tbox::Pointer<LData> Q_data,
+                                const SAMRAI::tbox::Pointer<LData> X_data,
+                                const SAMRAI::tbox::Pointer<LIndexSetData<LNode> > idx_data,
+                                const SAMRAI::tbox::Pointer<SAMRAI::pdat::SideData<NDIM, double> > q_data,
+                                const SAMRAI::tbox::Pointer<SAMRAI::pdat::SideData<NDIM, double> > mask_data,
+                                const SAMRAI::tbox::Pointer<SAMRAI::hier::Patch<NDIM> > patch,
+                                const SAMRAI::hier::Box<NDIM>& interp_box,
+                                const SAMRAI::hier::IntVector<NDIM>& periodic_shift,
+                                const std::string& interp_fcn);
 
 template void IBTK::LEInteractor::interpolate(SAMRAI::tbox::Pointer<LData> Q_data,
                                               const SAMRAI::tbox::Pointer<LData> X_data,
@@ -5092,6 +5278,16 @@ template void IBTK::LEInteractor::spread(SAMRAI::tbox::Pointer<SAMRAI::pdat::Cel
                                          const SAMRAI::hier::IntVector<NDIM>& periodic_shift,
                                          const std::string& spread_fcn);
 
+template void IBTK::LEInteractor::spread(SAMRAI::tbox::Pointer<SAMRAI::pdat::CellData<NDIM, double> > q_data,
+                                         const SAMRAI::tbox::Pointer<SAMRAI::pdat::CellData<NDIM, double> > mask_data,
+                                         const SAMRAI::tbox::Pointer<LData> Q_data,
+                                         const SAMRAI::tbox::Pointer<LData> X_data,
+                                         const SAMRAI::tbox::Pointer<LIndexSetData<LNode> > idx_data,
+                                         const SAMRAI::tbox::Pointer<SAMRAI::hier::Patch<NDIM> > patch,
+                                         const SAMRAI::hier::Box<NDIM>& spread_box,
+                                         const SAMRAI::hier::IntVector<NDIM>& periodic_shift,
+                                         const std::string& spread_fcn);
+
 template void IBTK::LEInteractor::spread(SAMRAI::tbox::Pointer<SAMRAI::pdat::NodeData<NDIM, double> > q_data,
                                          const SAMRAI::tbox::Pointer<LData> Q_data,
                                          const SAMRAI::tbox::Pointer<LData> X_data,
@@ -5102,6 +5298,15 @@ template void IBTK::LEInteractor::spread(SAMRAI::tbox::Pointer<SAMRAI::pdat::Nod
                                          const std::string& spread_fcn);
 
 template void IBTK::LEInteractor::spread(SAMRAI::tbox::Pointer<SAMRAI::pdat::SideData<NDIM, double> > q_data,
+                                         const SAMRAI::tbox::Pointer<LData> Q_data,
+                                         const SAMRAI::tbox::Pointer<LData> X_data,
+                                         const SAMRAI::tbox::Pointer<LIndexSetData<LNode> > idx_data,
+                                         const SAMRAI::tbox::Pointer<SAMRAI::hier::Patch<NDIM> > patch,
+                                         const SAMRAI::hier::Box<NDIM>& spread_box,
+                                         const SAMRAI::hier::IntVector<NDIM>& periodic_shift,
+                                         const std::string& spread_fcn);
+template void IBTK::LEInteractor::spread(SAMRAI::tbox::Pointer<SAMRAI::pdat::SideData<NDIM, double> > q_data,
+                                         const SAMRAI::tbox::Pointer<SAMRAI::pdat::SideData<NDIM, double> > mask_data,
                                          const SAMRAI::tbox::Pointer<LData> Q_data,
                                          const SAMRAI::tbox::Pointer<LData> X_data,
                                          const SAMRAI::tbox::Pointer<LIndexSetData<LNode> > idx_data,
